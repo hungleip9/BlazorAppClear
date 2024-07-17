@@ -7,41 +7,32 @@
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if (_forecasts == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Table TItem="WeatherForecast" Items="@_forecasts.Take(3)" HeaderStyle="TableHeaderStyle.Dark" IsStriped=true IsBordered="true" TableSize="TableSize.Compact">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.Date" Width="180" Filterable="true" Sortable="true" />
+            <TableColumn @bind-Field="@context.TemperatureC" Text="Temp. (C)" />
+            <TableColumn @bind-Field="@context.TemperatureF" Text="Temp. (F)" />
+            <TableColumn @bind-Field="@context.Summary" Text="Summary">
+                <Template Context="v">
+                    @v.Value
+                </Template>
+            </TableColumn>
+        </TableColumns>
+    </Table>
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private WeatherForecast[]? _forecasts;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        _forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
     }
 
     public class WeatherForecast
@@ -52,6 +43,10 @@ else
 
         public string? Summary { get; set; }
 
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        public int TemperatureF
+        {
+            get => 32 + (int)(TemperatureC / 0.5556);
+            set => throw new NotImplementedException();
+        }
     }
 }
